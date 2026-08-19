@@ -532,6 +532,7 @@ body {
     gap: 12px;
     margin-bottom: 30px;
     flex-wrap: wrap;
+    max-width: 200px; /* <--- ДОБАВЬТЕ ЭТУ СТРОКУ */
 }
 
 .color-dot {
@@ -1380,7 +1381,7 @@ html {
     font-size: 0.95rem;
     line-height: 1.7;
     color: #3A322B;
-    margin-bottom: 35px;
+    margin-bottom: 0px; /* <--- ИЗМЕНИТЕ С 35px НА 15px ИЛИ МЕНЬШЕ */
 }
 
 .welcome-text p {
@@ -1907,4 +1908,48 @@ body {
     background: #B8A78A;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(201, 184, 155, 0.3);
+}
+
+/* =========================================
+   КНОПКА ВКЛЮЧЕНИЯ МУЗЫКИ
+   ========================================= */
+.music-btn-wrapper {
+    width: 100%;
+    margin-top: 30px;
+    margin-bottom: 25px; /* <--- ДОБАВЬТЕ ЭТУ СТРОКУ */
+    display: flex;
+    justify-content: center;
+}
+
+.music-toggle-btn {
+    background: #C9B89B;
+    border: none;
+    border-radius: 30px;
+    padding: 14px 35px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(201, 184, 155, 0.3);
+}
+
+.music-toggle-btn:hover {
+    background: #B8A78A;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(201, 184, 155, 0.4);
+}
+
+.music-toggle-btn:active {
+    transform: translateY(0px);
+}
+
+.music-toggle-btn.playing {
+    background: #8A7B6E;
+}
+
+.music-toggle-btn.playing:hover {
+    background: #7A6B5E;
 }
