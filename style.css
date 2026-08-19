@@ -1884,3 +1884,27 @@ body {
 .zero-tap-text {
     color: #4A3F35;
 }
+
+
+/* Кнопка подписки в секции Детали */
+.details-subscribe-btn {
+    display: inline-block;
+    background: #C9B89B;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 30px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7475rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-top: 5px;
+}
+
+.details-subscribe-btn:hover {
+    background: #B8A78A;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(201, 184, 155, 0.3);
+}
