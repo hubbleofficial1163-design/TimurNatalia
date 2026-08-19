@@ -183,27 +183,25 @@
     }
     
     // ========== ОТПРАВКА В GOOGLE SHEETS ==========
-// ========== ОТПРАВКА В GOOGLE SHEETS ==========
-async function sendToGoogleSheets(formData) {
-    const formBody = new URLSearchParams();
-    formBody.append('name', formData.name);
-    formBody.append('attendance', formData.attendance);
-    if (formData.food) formBody.append('food', formData.food);
-    if (formData.allergies) formBody.append('allergies', formData.allergies);
-    // ИЗМЕНЕНО: отправляем каждый напиток отдельно
-    for (const drink of formData.drinks) {
-        formBody.append('drinks', drink);
+    async function sendToGoogleSheets(formData) {
+        const formBody = new URLSearchParams();
+        formBody.append('name', formData.name);
+        formBody.append('attendance', formData.attendance);
+        if (formData.food) formBody.append('food', formData.food);
+        if (formData.allergies) formBody.append('allergies', formData.allergies);
+        for (const drink of formData.drinks) {
+            formBody.append('drinks', drink);
+        }
+        
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formBody.toString()
+        });
+        
+        const result = await response.json();
+        return result;
     }
-    
-    const response = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formBody.toString()
-    });
-    
-    const result = await response.json();
-    return result;
-}
     
     // ========== ТАЙМЕР ==========
     function updateTimer() {
@@ -230,172 +228,161 @@ async function sendToGoogleSheets(formData) {
         document.getElementById('seconds').textContent = seconds < 10 ? '0' + seconds : seconds;
     }
     
-    // ========== СКРЫТИЕ ZERO-БЛОКА ==========
+    // ========== СКРЫТИЕ ZERO-БЛОКА + ВКЛЮЧЕНИЕ МУЗЫКИ ==========
     function initZeroBlock() {
         const zeroBlock = document.getElementById('zero-block');
+        let audio = null;
+        let musicStarted = false;
+
         if (zeroBlock) {
             zeroBlock.addEventListener('click', function() {
+                // Скрываем блок
                 this.classList.add('hidden');
+                
+                // Включаем музыку
+                if (!musicStarted) {
+                    audio = new Audio('1.mp3');
+                    audio.loop = true;
+                    
+                    audio.play().then(() => {
+                        musicStarted = true;
+                        console.log('🎵 Музыка включена');
+                    }).catch(function(error) {
+                        console.log('Ошибка воспроизведения:', error);
+                    });
+                }
+                
+                // Удаляем блок из DOM после анимации
                 setTimeout(function() {
                     zeroBlock.style.display = 'none';
                 }, 800);
             });
         }
+
+        // Сохраняем ссылку на аудио для возможности управления (если понадобится)
+        window.__weddingAudio = {
+            getAudio: () => audio,
+            isPlaying: () => musicStarted
+        };
     }
     
-    // ========== МУЗЫКА ==========
-    function initMusic() {
+    // ========== УДАЛЯЕМ КНОПКУ МУЗЫКИ ИЗ DOM ==========
+    function removeMusicButton() {
         const musicBtn = document.getElementById('musicToggleBtn');
-        if (!musicBtn) return;
-        
-        let musicStarted = false;
-        let audio = null;
-        
-        musicBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            
-            if (!musicStarted) {
-                audio = new Audio('1.mp3');
-                audio.loop = true;
-                
-                audio.play().then(() => {
-                    musicStarted = true;
-                    musicBtn.textContent = '♪ Музыка играет';
-                    musicBtn.classList.add('playing');
-                }).catch(function(error) {
-                    console.log('Ошибка воспроизведения:', error);
-                    musicBtn.textContent = '♪ Нажмите ещё раз';
-                });
-            } else {
-                if (audio.paused) {
-                    audio.play();
-                    musicBtn.textContent = '♪ Музыка играет';
-                    musicBtn.classList.add('playing');
-                } else {
-                    audio.pause();
-                    musicBtn.textContent = '♪ Музыка на паузе';
-                    musicBtn.classList.remove('playing');
-                }
-            }
-        });
+        if (musicBtn) {
+            musicBtn.style.display = 'none';
+        }
     }
     
     // ========== ИНИЦИАЛИЗАЦИЯ ФОРМЫ ==========
-function initRSVPForm() {
-    const form = document.querySelector('.final-form');
-    if (!form) {
-        console.error('❌ Форма .final-form не найдена!');
-        return;
-    }
-    
-    console.log('✅ Форма найдена, инициализация...');
-    
-    const nameInput = document.getElementById('guestName');
-    const attendanceRadios = form.querySelectorAll('input[name="attendance"]');
-    const foodRadios = form.querySelectorAll('input[name="food"]');
-    // ИЗМЕНЕНО: собираем чекбоксы вместо радио
-    const drinkCheckboxes = form.querySelectorAll('input[name="drinks"]');
-    const allergiesInput = document.getElementById('allergies');
-    const submitBtn = form.querySelector('.final-btn');
-    
-    // Убираем старый обработчик submit
-    form.onsubmit = null;
-    
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        if (isSubmitting) return;
-        
-        const name = nameInput ? nameInput.value.trim() : '';
-        
-        let attendance = null;
-        attendanceRadios.forEach(radio => {
-            if (radio.checked) attendance = radio.value;
-        });
-        
-        let food = null;
-        foodRadios.forEach(radio => {
-            if (radio.checked) food = radio.value;
-        });
-        
-        // ИЗМЕНЕНО: собираем ВСЕ выбранные напитки в массив
-        let drinkValues = [];
-        drinkCheckboxes.forEach(checkbox => {
-            if (checkbox.checked) {
-                drinkValues.push(checkbox.value);
-            }
-        });
-        
-        const allergies = allergiesInput ? allergiesInput.value.trim() : '';
-        
-        // Валидация
-        if (!name) {
-            showModal('Ошибка', 'Пожалуйста, введите ваше имя и фамилию', true);
-            if (nameInput) nameInput.focus();
+    function initRSVPForm() {
+        const form = document.querySelector('.final-form');
+        if (!form) {
+            console.error('❌ Форма .final-form не найдена!');
             return;
         }
         
-        if (!attendance) {
-            showModal('Ошибка', 'Пожалуйста, выберите, сможете ли вы присутствовать', true);
-            return;
-        }
+        console.log('✅ Форма найдена, инициализация...');
         
-        // Блокируем кнопку
-        isSubmitting = true;
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Отправка...';
-        }
+        const nameInput = document.getElementById('guestName');
+        const attendanceRadios = form.querySelectorAll('input[name="attendance"]');
+        const foodRadios = form.querySelectorAll('input[name="food"]');
+        const drinkCheckboxes = form.querySelectorAll('input[name="drinks"]');
+        const allergiesInput = document.getElementById('allergies');
+        const submitBtn = form.querySelector('.final-btn');
         
-        const loadingModal = showLoadingModal();
+        form.onsubmit = null;
         
-        try {
-            const formData = { 
-                name: name, 
-                attendance: attendance,
-                food: food,
-                drinks: drinkValues, // ИЗМЕНЕНО: массив вместо одного значения
-                allergies: allergies
-            };
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            const result = await sendToGoogleSheets(formData);
+            if (isSubmitting) return;
             
-            loadingModal.remove();
+            const name = nameInput ? nameInput.value.trim() : '';
             
-            if (result.result === 'success') {
-                let responseMessage = '';
-                if (attendance === 'yes') {
-                    responseMessage = `Спасибо, ${name}! Будем ждать вас на нашей свадьбе 24 сентября 2026 года! 🎉`;
-                } else {
-                    responseMessage = `Спасибо за ответ, ${name}! Очень жаль, что вы не сможете быть с нами.`;
+            let attendance = null;
+            attendanceRadios.forEach(radio => {
+                if (radio.checked) attendance = radio.value;
+            });
+            
+            let food = null;
+            foodRadios.forEach(radio => {
+                if (radio.checked) food = radio.value;
+            });
+            
+            let drinkValues = [];
+            drinkCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    drinkValues.push(checkbox.value);
                 }
-                
-                showModal('Ответ отправлен!', responseMessage, false);
-                
-                // Очищаем форму
-                if (nameInput) nameInput.value = '';
-                attendanceRadios.forEach(radio => radio.checked = false);
-                foodRadios.forEach(radio => radio.checked = false);
-                // ИЗМЕНЕНО: очищаем чекбоксы
-                drinkCheckboxes.forEach(checkbox => checkbox.checked = false);
-                if (allergiesInput) allergiesInput.value = '';
-                
-                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
-            } else {
-                throw new Error(result.message || 'Ошибка отправки');
+            });
+            
+            const allergies = allergiesInput ? allergiesInput.value.trim() : '';
+            
+            if (!name) {
+                showModal('Ошибка', 'Пожалуйста, введите ваше имя и фамилию', true);
+                if (nameInput) nameInput.focus();
+                return;
             }
-        } catch (error) {
-            loadingModal.remove();
-            showModal('Ошибка', error.message || 'Произошла ошибка при отправке. Пожалуйста, попробуйте ещё раз.', true);
-        } finally {
-            isSubmitting = false;
+            
+            if (!attendance) {
+                showModal('Ошибка', 'Пожалуйста, выберите, сможете ли вы присутствовать', true);
+                return;
+            }
+            
+            isSubmitting = true;
             if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'ОТПРАВИТЬ ОТВЕТ';
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...';
             }
-        }
-    });
-}
+            
+            const loadingModal = showLoadingModal();
+            
+            try {
+                const formData = { 
+                    name: name, 
+                    attendance: attendance,
+                    food: food,
+                    drinks: drinkValues,
+                    allergies: allergies
+                };
+                
+                const result = await sendToGoogleSheets(formData);
+                
+                loadingModal.remove();
+                
+                if (result.result === 'success') {
+                    let responseMessage = '';
+                    if (attendance === 'yes') {
+                        responseMessage = `Спасибо, ${name}! Будем ждать вас на нашей свадьбе 24 сентября 2026 года! 🎉`;
+                    } else {
+                        responseMessage = `Спасибо за ответ, ${name}! Очень жаль, что вы не сможете быть с нами.`;
+                    }
+                    
+                    showModal('Ответ отправлен!', responseMessage, false);
+                    
+                    if (nameInput) nameInput.value = '';
+                    attendanceRadios.forEach(radio => radio.checked = false);
+                    foodRadios.forEach(radio => radio.checked = false);
+                    drinkCheckboxes.forEach(checkbox => checkbox.checked = false);
+                    if (allergiesInput) allergiesInput.value = '';
+                    
+                    if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+                } else {
+                    throw new Error(result.message || 'Ошибка отправки');
+                }
+            } catch (error) {
+                loadingModal.remove();
+                showModal('Ошибка', error.message || 'Произошла ошибка при отправке. Пожалуйста, попробуйте ещё раз.', true);
+            } finally {
+                isSubmitting = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'ОТПРАВИТЬ ОТВЕТ';
+                }
+            }
+        });
+    }
     
     // ========== ЗАПУСК ==========
     document.addEventListener('DOMContentLoaded', function() {
@@ -411,17 +398,18 @@ function initRSVPForm() {
         updateTimer();
         setInterval(updateTimer, 1000);
         
-        // Zero блок
+        // Zero блок (включает музыку)
         initZeroBlock();
         
-        // Музыка
-        initMusic();
+        // Удаляем кнопку музыки
+        removeMusicButton();
         
         // Форма
         initRSVPForm();
         
         console.log('✅ Форма RSVP готова к отправке в Google Sheets');
         console.log('📊 URL скрипта:', SCRIPT_URL);
+        console.log('🎵 Музыка включится при нажатии на Zero-блок');
     });
     
 })();
