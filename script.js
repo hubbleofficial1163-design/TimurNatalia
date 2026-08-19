@@ -56,31 +56,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // =========================================
-// ZERO БЛОК + МУЗЫКА
+// МУЗЫКА (Кнопка в секции приветствия)
 // =========================================
 let musicStarted = false;
+let audio = null;
 
-function startMusic() {
-    if (musicStarted) return;
-    
-    const zeroBlock = document.getElementById('zero-block');
-    const audio = new Audio('1.mp3');
-    
-    // Запускаем музыку
-    audio.play().catch(function(error) {
-        console.log('Автовоспроизведение заблокировано, нужен клик пользователя');
+const musicBtn = document.getElementById('musicToggleBtn');
+
+if (musicBtn) {
+    musicBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        if (!musicStarted) {
+            // Первый клик — создаём и запускаем аудио
+            audio = new Audio('1.mp3');
+            audio.loop = true;
+            
+            audio.play().then(() => {
+                musicStarted = true;
+                musicBtn.textContent = '♪ Музыка играет';
+                musicBtn.classList.add('playing');
+            }).catch(function(error) {
+                console.log('Ошибка воспроизведения:', error);
+                musicBtn.textContent = '♪ Нажмите ещё раз';
+            });
+        } else {
+            // Если музыка уже создана — переключаем паузу
+            if (audio.paused) {
+                audio.play();
+                musicBtn.textContent = '♪ Музыка играет';
+                musicBtn.classList.add('playing');
+            } else {
+                audio.pause();
+                musicBtn.textContent = '♪ Музыка на паузе';
+                musicBtn.classList.remove('playing');
+            }
+        }
     });
-    
-    // Прячем zero-блок
-    zeroBlock.classList.add('hidden');
-    
-    // Удаляем блок из DOM после анимации
-    setTimeout(function() {
-        zeroBlock.style.display = 'none';
-    }, 800);
-    
-    musicStarted = true;
-    
-    // Сохраняем аудио в глобальную переменную, чтобы оно не остановилось
-    window.weddingAudio = audio;
+}
+
+
+// =========================================
+// СКРЫТИЕ ZERO-БЛОКА ПО КЛИКУ
+// =========================================
+const zeroBlock = document.getElementById('zero-block');
+
+if (zeroBlock) {
+    zeroBlock.addEventListener('click', function() {
+        this.classList.add('hidden');
+        setTimeout(function() {
+            zeroBlock.style.display = 'none';
+        }, 800);
+    });
 }
