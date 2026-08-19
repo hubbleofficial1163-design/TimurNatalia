@@ -15,7 +15,8 @@
 <body>
 
     <!-- ZERO БЛОК -->
-<div id="zero-block" onclick="startMusic()">
+<!-- ZERO БЛОК (только для показа фото, без музыки) -->
+<div id="zero-block">
     <img src="zero.jpg" alt="Нажмите для запуска">
     <div class="zero-overlay">
         <span class="zero-tap-text">Мы ждем Вас...</span>
@@ -35,7 +36,7 @@
 
             <div class="photo-section">
                 <div class="photo-frame">
-                    <img src="hero.jpg" alt="Максим и Екатерина" class="hero-image">
+                    <img src="hero2.jpg" alt="Максим и Екатерина" class="hero-image">
                 </div>
             </div>
 
@@ -61,6 +62,11 @@
                 Мы будем очень рады разделить этот<br>
                 важный день с Вами!
             </p>
+        </div>
+
+        <!-- Кнопка включения музыки -->
+        <div class="music-btn-wrapper">
+            <button id="musicToggleBtn" class="music-toggle-btn">♪ Включить музыку</button>
         </div>
 
         <!-- Календарь -->
@@ -156,7 +162,11 @@
                     </p>
                 </div>
 
-                <a href="https://yandex.ru/maps/org/millenium_park/245667275509?si=wuqmpah7vpg6d3tmgqt5pyv43g" target="_blank" class="loc-new-btn">перейти к карте</a>
+                <a href="https://yandex.ru/maps/org/millenium_park/245667275509?si=wuqmpah7vpg6d3tmgqt5pyv43g" target="_blank" class="loc-new-btn">перейти к карте</a> <br> <br>
+
+                <p class="loc-new-desc">
+                    Подъезжайте к автомобильной парковке<br>
+                </p>
             </div>
 
             <!-- ТЕКСТ ВНИЗУ НА ФОНЕ ФОТО -->
@@ -267,6 +277,7 @@
             <div class="color-dot" style="background-color: #8A9BA8;"></div>
             <div class="color-dot" style="background-color: #B8A9C9;"></div>
             <div class="color-dot" style="background-color: #d2e8c4;"></div>
+            <div class="color-dot" style="background-color: #f5d7d5;"></div>
         </div>
 
         <!-- Нижний текст -->
@@ -298,7 +309,9 @@
         <!-- Блок: Цветы (НОВЫЙ) -->
         <div class="details-item">
             <p class="details-item-text">
-                С большой благодарностью просим воздержаться от дарения цветов. У нас есть цветочная подписка, благодаря которой, мы сможем каждый день наслаждаться красотой цветов.
+                Возможно вы хотели порадовать нас цветами в день торжества? 
+                <br> 
+                Будем благодарны, если вместо букета вы присоединитесь к нашей цветочной подписке.
             </p>
         </div>
 
@@ -308,6 +321,12 @@
                 Перейти к подписке
             </a>
         </div>
+
+        <p class="details-item-text">
+            Так цветы будут радовать нас не только в день свадьбы, но и после — каждую неделю, напоминая о вас и этом прекрасном дне.
+            <br>
+            Спасибо, что помогаете нам сохранить эти воспоминания живыми. <br> <br> 
+        </p>
 
         <!-- Блок: Дети -->
         <div class="details-item">
@@ -319,7 +338,7 @@
         <!-- Блок: Контакты организатора -->
         <div class="details-item">
             <p class="details-item-text">
-                Контакты для связи (организатор): <br> Аделия +7 (917) 409-32-89 <br> (Telegram, WhatsApp)
+                По всем вопросам пишите нашему организатору: <br> Аделия +7 (917) 409-32-89 <br> (Telegram, WhatsApp)
             </p>
         </div>
 
